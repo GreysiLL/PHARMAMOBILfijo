@@ -1,4 +1,5 @@
 package pe.edu.upeu.pharmamobil.data.repository
+import kotlinx.coroutines.flow.collect
 
 import pe.edu.upeu.pharmamobil.domain.model.Producto
 import pe.edu.upeu.pharmamobil.domain.repository.ProductoRepository
@@ -15,6 +16,11 @@ class FakeProductoRepository(
     var fallaAlRegistrar: Throwable? = null
     var fallaAlListar: Throwable? = null
 
+    private val cambios = kotlinx.coroutines.flow.MutableStateFlow(productos.filter { it.estado })
+    override fun observar(): kotlinx.coroutines.flow.Flow<List<Producto>> = kotlinx.coroutines.flow.flow {
+        fallaAlListar?.let { throw it }
+        cambios.collect { emit(it) }
+    }
     private var siguienteId = (productos.maxOfOrNull { it.id } ?: 0L) + 1L
 
     override suspend fun registrar(producto: Producto): Producto {
@@ -23,6 +29,7 @@ class FakeProductoRepository(
 
         val guardado = producto.copy(id = siguienteId++)
         productos.add(guardado)
+        cambios.value = productos.filter { it.estado }
         return guardado
     }
 
@@ -33,6 +40,6 @@ class FakeProductoRepository(
         return productos.filter { it.estado }
     }
     override suspend fun obtener(id: Long) = productos.first { it.id == id }
-    override suspend fun actualizar(producto: Producto): Producto { val i=productos.indexOfFirst { it.id==producto.id };check(i>=0);productos[i]=producto;return producto }
-    override suspend fun eliminar(id: Long) { val i=productos.indexOfFirst { it.id==id };check(i>=0);productos[i]=productos[i].copy(estado=false) }
+    override suspend fun actualizar(producto: Producto): Producto { val i=productos.indexOfFirst { it.id==producto.id };check(i>=0);productos[i]=producto;cambios.value=productos.filter { it.estado };return producto }
+    override suspend fun eliminar(id: Long) { val i=productos.indexOfFirst { it.id==id };check(i>=0);productos[i]=productos[i].copy(estado=false);cambios.value=productos.filter { it.estado } }
 }

@@ -60,6 +60,7 @@ class AppModuleTest {
                 override fun leerToken(): String? = null
                 override fun borrarToken() {}
             } }
+            single<pe.edu.upeu.pharmamobil.data.local.CreadorDeDriver> { object : pe.edu.upeu.pharmamobil.data.local.CreadorDeDriver { override fun crear() = pe.edu.upeu.pharmamobil.data.local.driverEnMemoria() } }
             single(org.koin.core.qualifier.named("depuracion")) { false }
             single<HttpClientEngine> { MockEngine {
                 respond("""{"contenido":[],"pagina":0,"tamanio":20,"totalElementos":0,"totalPaginas":0,"ultima":true}""",
@@ -73,7 +74,7 @@ class AppModuleTest {
 
         val koin = grafoCompleto()
 
-        assertIs<ProductoRepositorioRest>(koin.get<ProductoRepository>())
+        assertIs<pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioOffline>(koin.get<ProductoRepository>())
         assertIs<pe.edu.upeu.pharmamobil.data.repository.ClienteRepositorioRest>(koin.get<ClienteRepository>())
     }
 
