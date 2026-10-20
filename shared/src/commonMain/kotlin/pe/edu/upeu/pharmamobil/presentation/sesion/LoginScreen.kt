@@ -17,7 +17,7 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LoginScreen(estado: SesionUiState, aviso: String?, usuario: (String) -> Unit, clave: (String) -> Unit, login: () -> Unit, restaurar: () -> Unit) {
+fun LoginScreen(estado: SesionUiState, aviso: String?, usuario: (String) -> Unit, clave: (String) -> Unit, login: () -> Unit, restaurar: () -> Unit, verCatalogoLocal: () -> Unit = {}) {
     var visible by rememberSaveable { mutableStateOf(false) }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Box(Modifier.fillMaxSize().safeDrawingPadding().imePadding(), contentAlignment = Alignment.Center) {
@@ -48,6 +48,7 @@ fun LoginScreen(estado: SesionUiState, aviso: String?, usuario: (String) -> Unit
                                 if(estado.cargando) { CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.onPrimary); Spacer(Modifier.width(10.dp)) }
                                 Text(if(estado.cargando) "Ingresando…" else "Ingresar")
                             }
+                            TextButton(onClick = verCatalogoLocal) { Text("Ver catálogo sin conexión") }
                             if(estado.error != null) TextButton(onClick = restaurar) { Text("Reintentar sesión guardada") }
                         }
                     }

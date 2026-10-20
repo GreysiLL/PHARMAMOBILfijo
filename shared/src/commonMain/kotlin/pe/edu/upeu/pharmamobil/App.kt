@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -101,9 +103,17 @@ fun App() = KoinContext {
     val activa = sesion
     if (activa == null) {
         PharmaMobilTheme(darkTheme = false) {
-            pe.edu.upeu.pharmamobil.presentation.sesion.LoginScreen(login, aviso, vm::usuario, vm::clave, vm::login, vm::restaurar)
+            if(login.catalogoVacio) {
+                Column(Modifier.fillMaxSize().safeDrawingPadding().padding(24.dp), verticalArrangement = Arrangement.spacedBy(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Inventario local", style = MaterialTheme.typography.headlineSmall)
+                    Text("Nunca sincronizado")
+                    Text("No hay productos disponibles sin una sesión guardada.")
+                    Text("Conéctate e inicia sesión para descargar el catálogo por primera vez.")
+                    Button(onClick = vm::volverLogin) { Text("Iniciar sesión") }
+                }
+            } else pe.edu.upeu.pharmamobil.presentation.sesion.LoginScreen(login, aviso, vm::usuario, vm::clave, vm::login, vm::restaurar, vm::verCatalogoVacio)
         }
-    } else key(activa.usuario) {
+    } else key(activa.usuario, activa.soloLecturaLocal) {
         val owner = remember { object : ViewModelStoreOwner { override val viewModelStore = ViewModelStore() } }
         DisposableEffect(owner) { onDispose { owner.viewModelStore.clear() } }
         CompositionLocalProvider(LocalViewModelStoreOwner provides owner) { AppAutenticada(activa, vm::logout) }
@@ -257,7 +267,7 @@ private fun AppAutenticada(sesion: pe.edu.upeu.pharmamobil.domain.model.Sesion, 
                             val id = detalleId
                             pe.edu.upeu.pharmamobil.platform.AtrasDetalle(id != null) { detalleId = null }
                             if (id == null) ProductoScreen(
-                                viewModel = koinViewModel(), puedeEscribir = sesion.puede("CATALOGO_ESCRIBIR"), onAbrirDetalle = { detalleId = it }
+                                viewModel = koinViewModel(), puedeEscribir = sesion.puede("CATALOGO_ESCRIBIR"), sesionVencidaSinRed = sesion.soloLecturaLocal, onAbrirDetalle = { detalleId = it }
                             ) else {
                                 val vm: pe.edu.upeu.pharmamobil.presentation.detalle.DetalleProductoViewModel = koinViewModel()
                                 val estado by vm.uiState.collectAsState()

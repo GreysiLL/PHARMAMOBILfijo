@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import pe.edu.upeu.pharmamobil.domain.repository.ObservadorSesion
 import pe.edu.upeu.pharmamobil.domain.repository.AuthRepository
 import pe.edu.upeu.pharmamobil.domain.usecase.*
-data class SesionUiState(val usuario: String = "", val clave: String = "", val cargando: Boolean = false, val iniciando: Boolean = true, val error: String? = null)
+data class SesionUiState(val usuario: String = "", val clave: String = "", val cargando: Boolean = false, val iniciando: Boolean = true, val error: String? = null, val catalogoVacio: Boolean = false)
 class SesionViewModel(private val repo: AuthRepository, private val iniciar: IniciarSesionUseCase, private val cerrar: CerrarSesionUseCase, estado: ObservadorSesion) : ViewModel() {
     val sesion = estado.sesion
     val aviso = estado.aviso
@@ -20,6 +20,8 @@ class SesionViewModel(private val repo: AuthRepository, private val iniciar: Ini
         catch(e: Exception) { actual.update { it.copy(error = e.message ?: "No pudimos recuperar tu sesión.") } }
         finally { actual.update { it.copy(iniciando = false) } }
     } }
+    fun verCatalogoVacio() { actual.update { it.copy(catalogoVacio = true) } }
+    fun volverLogin() { actual.update { it.copy(catalogoVacio = false) } }
     fun usuario(v: String) { if(!actual.value.cargando) actual.update { it.copy(usuario = v, error = null) } }
     fun clave(v: String) { if(!actual.value.cargando) actual.update { it.copy(clave = v, error = null) } }
     fun login() {

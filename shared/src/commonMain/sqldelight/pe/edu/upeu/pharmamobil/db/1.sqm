@@ -1,0 +1,4 @@
+CREATE TABLE sincronizacion (
+ usuario TEXT NOT NULL PRIMARY KEY,
+ ultimoExito INTEGER NOT NULL
+);

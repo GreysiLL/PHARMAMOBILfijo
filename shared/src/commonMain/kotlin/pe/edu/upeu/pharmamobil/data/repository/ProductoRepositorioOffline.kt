@@ -15,7 +15,8 @@ class ProductoRepositorioOffline(
  private val local: ProductoLocal,
  private val remoto: ProductoApi,
  private val sesiones: StateFlow<Sesion?>,
- private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+ private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+ private val ahoraMillis: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }
 ) : ProductoRepository {
  private val mutex = Mutex()
  private fun usuario() = sesiones.value?.usuario ?: throw ErrorApiException(ErrorApi.SesionExpirada)
@@ -25,10 +26,15 @@ class ProductoRepositorioOffline(
  override fun observarPendientes(): Flow<Int> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
   if(it == null) flowOf(0) else local.observarPendientes(it)
  }
+ override fun ultimaSincronizacion(): Flow<Long?> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
+  if(it == null) flowOf(null) else local.ultimaSincronizacion(it)
+ }
+ private fun exigirEscritura() { if(sesiones.value?.soloLecturaLocal == true) throw ErrorApiException(ErrorApi.SesionExpirada) }
  override suspend fun listar() = withContext(dispatcher) { local.listar(usuario()) }
  override suspend fun obtener(id: Long) = withContext(dispatcher) { local.obtener(usuario(), id) }
  override suspend fun registrar(producto: Producto): Producto = withContext(dispatcher) { mutex.withLock {
   val usuario = usuario()
+  exigirEscritura()
   val guardado = local.guardarPendiente(usuario, producto)
   try { sincronizarDentro(usuario) }
   catch(e: CancellationException) { throw e }
@@ -41,7 +47,7 @@ class ProductoRepositorioOffline(
   local.listar(usuario).firstOrNull { it.nombre == guardado.nombre && it.id == guardado.id } ?: guardado
  } }
  override suspend fun actualizar(producto: Producto): Producto = withContext(dispatcher) { mutex.withLock {
-  val usuario = usuario(); val anterior = local.obtener(usuario, producto.id)
+  val usuario = usuario(); val anterior = local.obtener(usuario, producto.id); exigirEscritura()
   val guardado = producto.copy(pendiente = true); local.modificar(usuario, guardado)
   try { sincronizarDentro(usuario) }
   catch(e: CancellationException) { throw e }
@@ -49,7 +55,7 @@ class ProductoRepositorioOffline(
   guardado
  } }
  override suspend fun eliminar(id: Long) = withContext(dispatcher) { mutex.withLock {
-  val usuario = usuario(); val anterior = local.obtener(usuario, id)
+  val usuario = usuario(); val anterior = local.obtener(usuario, id); exigirEscritura()
   if(id < 0) local.borrar(usuario, id) else {
    local.modificar(usuario, anterior.copy(estado = false))
    try { sincronizarDentro(usuario) }
@@ -78,7 +84,7 @@ class ProductoRepositorioOffline(
    productos.addAll(pagina.contenido.filter { it.estado }.map { it.toDomain() }); numero++
   } while(!pagina.ultima)
   comprobarUsuario(usuario)
-  local.reemplazarSincronizados(usuario, productos)
+  local.reemplazarSincronizados(usuario, productos, ahoraMillis())
  }
  private fun comprobarUsuario(esperado: String) { if(usuario() != esperado) throw ErrorApiException(ErrorApi.SesionExpirada) }
 }

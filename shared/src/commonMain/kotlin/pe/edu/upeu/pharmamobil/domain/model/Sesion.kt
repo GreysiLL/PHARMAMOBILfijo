@@ -1,5 +1,5 @@
 package pe.edu.upeu.pharmamobil.domain.model
 data class Credenciales(val usuario: String, val clave: String)
-data class Sesion(val token: String, val usuario: String, val nombreCompleto: String, val permisos: Set<String>) {
-    fun puede(permiso: String) = permiso in permisos
+data class Sesion(val token: String, val usuario: String, val nombreCompleto: String, val permisos: Set<String>, val soloLecturaLocal: Boolean = false) {
+    fun puede(permiso: String) = permiso in permisos && (!soloLecturaLocal || permiso == "CATALOGO_LEER")
 }

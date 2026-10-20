@@ -32,6 +32,9 @@ class ProductoViewModel(
   viewModelScope.launch {
    listarProductos.observarPendientes().catch { }.collect { cantidad -> _uiState.update { it.copy(pendientes = cantidad) } }
   }
+  viewModelScope.launch {
+   listarProductos.ultimaSincronizacion().catch { }.collect { instante -> _uiState.update { it.copy(ultimaSincronizacion = instante) } }
+  }
   sincronizar()
  }
  fun cargarProductos() = sincronizar()

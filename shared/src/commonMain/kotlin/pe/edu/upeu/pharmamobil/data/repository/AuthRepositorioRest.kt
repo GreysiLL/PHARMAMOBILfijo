@@ -34,7 +34,7 @@ class AuthRepositorioRest(private val cliente: HttpClient, private val almacen: 
           catch(e: HttpRequestTimeoutException) { recuperarSinRed(token, e) }
     }
     private fun recuperarSinRed(token: String, fallo: Exception): Sesion {
-        val sesion = cache?.recuperar(token) ?: throw fallo
+        val sesion = cache?.recuperar(token, permitirVencidaSoloLectura = true) ?: throw fallo
         estado.activar(sesion)
         return sesion
     }

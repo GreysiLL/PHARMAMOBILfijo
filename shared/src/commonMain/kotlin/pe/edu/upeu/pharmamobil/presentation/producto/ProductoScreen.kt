@@ -17,8 +17,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import pe.edu.upeu.pharmamobil.presentation.components.*
 
 @Composable
-fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, onAbrirDetalle: (Long) -> Unit = {}, puedeEscribir: Boolean = true) {
+fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, onAbrirDetalle: (Long) -> Unit = {}, puedeEscribir: Boolean = true, sesionVencidaSinRed: Boolean = false) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val ahora by produceState(kotlin.time.Clock.System.now().toEpochMilliseconds()) {
+        while(true) { value = kotlin.time.Clock.System.now().toEpochMilliseconds(); kotlinx.coroutines.delay(60_000) }
+    }
     var porEliminar by remember { mutableStateOf<ProductoUi?>(null) }
     var mostrarFormulario by rememberSaveable { mutableStateOf(false) }
     porEliminar?.let { producto ->
@@ -48,6 +51,8 @@ fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, 
                 Text(if(uiState.sincronizando) "Sincronizando…" else "Sincronizar")
             }
         }
+        if(sesionVencidaSinRed) Text("Sesión vencida: consulta local en modo lectura. Conéctate e inicia sesión para sincronizar.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.tertiary)
+        Text(antiguedadDatos(uiState.ultimaSincronizacion, ahora), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         uiState.avisoRed?.let { aviso ->
             Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.secondaryContainer) {
                 Text(aviso, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)

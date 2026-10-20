@@ -7,6 +7,7 @@ class ListarProductosUseCase(
     private val productoRepository: ProductoRepository
 ) {
 
+    fun ultimaSincronizacion() = productoRepository.ultimaSincronizacion()
     fun observar() = productoRepository.observar()
     fun observarPendientes() = productoRepository.observarPendientes()
     suspend fun sincronizar() = resultadoDe { productoRepository.sincronizar() }

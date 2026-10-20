@@ -12,15 +12,16 @@ class SesionLocal(base: PharmaDb) {
  // Solo restaura una sesión previamente validada y aún vigente. Esto no valida la firma;
  // toda autorización de red continúa siendo responsabilidad de PharmaSoft.
  @OptIn(ExperimentalEncodingApi::class)
- fun recuperar(token: String): Sesion? = try {
+ fun recuperar(token: String, permitirVencidaSoloLectura: Boolean = false): Sesion? = try {
   val partes = token.split('.')
   require(partes.size == 3)
   val contenido = Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT_OPTIONAL).decode(partes[1]).decodeToString()
   val claims = Json.parseToJsonElement(contenido).jsonObject
   val usuario = claims.getValue("sub").jsonPrimitive.content
   val vence = claims.getValue("exp").jsonPrimitive.long
-  if(vence <= Clock.System.now().epochSeconds) null else q.obtener(usuario).executeAsOneOrNull()?.let {
-   Sesion(token, it.usuario, it.nombre, Json.parseToJsonElement(it.permisos).jsonArray.map { p -> p.jsonPrimitive.content }.toSet())
+  val vencida = vence <= Clock.System.now().epochSeconds
+  if(vencida && !permitirVencidaSoloLectura) null else q.obtener(usuario).executeAsOneOrNull()?.let {
+   Sesion(token, it.usuario, it.nombre, Json.parseToJsonElement(it.permisos).jsonArray.map { p -> p.jsonPrimitive.content }.toSet(), soloLecturaLocal = vencida)
   }
  } catch(_: Exception) { null }
 }

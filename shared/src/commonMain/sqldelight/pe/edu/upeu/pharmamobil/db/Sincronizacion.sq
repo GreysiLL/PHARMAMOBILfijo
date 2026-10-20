@@ -1,0 +1,8 @@
+CREATE TABLE sincronizacion (
+ usuario TEXT NOT NULL PRIMARY KEY,
+ ultimoExito INTEGER NOT NULL
+);
+guardar:
+INSERT OR REPLACE INTO sincronizacion VALUES (?, ?);
+obtener:
+SELECT ultimoExito FROM sincronizacion WHERE usuario = ?;

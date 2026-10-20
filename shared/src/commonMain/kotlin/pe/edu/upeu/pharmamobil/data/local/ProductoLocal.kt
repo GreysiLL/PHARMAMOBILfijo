@@ -10,6 +10,8 @@ import pe.edu.upeu.pharmamobil.domain.error.*
 
 class ProductoLocal(base: PharmaDb, private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
  private val q = base.productoQueries
+ private val meta = base.sincronizacionQueries
+ fun ultimaSincronizacion(usuario: String) = meta.obtener(usuario).asFlow().mapToList(dispatcher).map { it.firstOrNull() }
  fun observar(usuario: String) = q.listarTodos(usuario).asFlow().mapToList(dispatcher).map { filas -> filas.map { it.aDominio() } }
  fun observarPendientes(usuario: String) = q.listarPendientes(usuario).asFlow().mapToList(dispatcher).map { it.size }
  fun listar(usuario: String) = q.listarTodos(usuario).executeAsList().map { it.aDominio() }
@@ -32,7 +34,8 @@ class ProductoLocal(base: PharmaDb, private val dispatcher: CoroutineDispatcher 
  fun confirmar(usuario: String, idLocal: Long, remoto: Producto) { q.transaction {
   q.borrar(usuario, idLocal); insertar(usuario, remoto.copy(pendiente = false))
  } }
- fun reemplazarSincronizados(usuario: String, productos: List<Producto>) { q.transaction {
+ fun reemplazarSincronizados(usuario: String, productos: List<Producto>, instante: Long? = null) { q.transaction {
+  if(instante != null) meta.guardar(usuario, instante)
   q.borrarSincronizados(usuario)
   productos.forEach { producto ->
    if(q.obtener(usuario, producto.id).executeAsOneOrNull()?.pendiente != 1L)
