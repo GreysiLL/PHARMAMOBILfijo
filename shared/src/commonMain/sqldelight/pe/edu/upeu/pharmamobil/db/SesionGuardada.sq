@@ -1,0 +1,9 @@
+CREATE TABLE sesionGuardada (
+ usuario TEXT NOT NULL PRIMARY KEY,
+ nombre TEXT NOT NULL,
+ permisos TEXT NOT NULL
+);
+guardar:
+INSERT OR REPLACE INTO sesionGuardada VALUES (?, ?, ?);
+obtener:
+SELECT * FROM sesionGuardada WHERE usuario = ?;

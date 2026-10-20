@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    alias(libs.plugins.sqldelight)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.androidMultiplatformLibrary)
@@ -42,6 +43,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.sqldelight.android)
             // OkHttp 5.5 exige SDK 37; conservamos compatibilidad con SDK 36.
             implementation(project.dependencies.enforcedPlatform(libs.okhttp.bom))
             implementation(libs.ktor.client.okhttp)
@@ -51,8 +53,10 @@ kotlin {
             // api: MainApplication (androidApp) usa androidContext() al arrancar Koin.
             api(libs.koin.android)
         }
-        iosMain.dependencies { implementation(libs.ktor.client.darwin) }
+        iosMain.dependencies { implementation(libs.sqldelight.native); implementation(libs.ktor.client.darwin) }
         commonMain.dependencies {
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.contentNegotiation)
@@ -72,6 +76,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
         }
+        getByName("androidHostTest").dependencies { implementation(libs.sqldelight.jvm) }
         commonTest.dependencies {
             implementation(libs.ktor.client.mock)
             implementation(libs.kotlin.test)
@@ -88,3 +93,4 @@ tasks.withType<Test>().configureEach {
         showStandardStreams = true
     }
 }
+sqldelight { databases { create("PharmaDb") { packageName.set("pe.edu.upeu.pharmamobil.db") } } }
