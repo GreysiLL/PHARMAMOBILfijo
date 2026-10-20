@@ -1,0 +1,22 @@
+{
+  "tests": 90,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "nuevasOffline": 13,
+  "casosOffline": [
+    "noRecuperaUnTokenVencidoNiUnaSesionQueNuncaFueValidada",
+    "restauraUnaSesionPreviamenteValidadaAlAbrirSinRed",
+    "un401DelServidorNuncaSeOcultaConLaSesionLocal",
+    "editarYEliminarUnPendienteNuncaEnviaUnIdNegativoALaApi",
+    "deleteConfirmadoNoResucitaLaFilaSiElGetResponde500",
+    "losDatosYLosPendientesNoSeMezclanEntreUsuarios",
+    "dosSincronizacionesSimultaneasNoDuplicanElPost",
+    "reconectarSubeAntesDeBajarYReemplazaIdLocalSinDuplicar",
+    "laBaseConservaDatosAlCrearOtroRepositorioSinRed",
+    "sinRedGuardaUnIdNegativoPendienteYElFlowLoEmite",
+    "unaSubidaFallidaImpideBajarYConservaTodosLosPendientes",
+    "postConfirmadoNoSeRepiteSiFallaLaDescarga",
+    "bajarLaListaNoBorraUnaFilaPendiente"
+  ]
+}

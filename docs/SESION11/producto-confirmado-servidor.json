@@ -1,0 +1,15 @@
+{
+  "fecha": "2026-10-20T14:38:13.877783-05:00",
+  "codigoHttp": 200,
+  "producto": {
+    "id": 82,
+    "nombre": "S11Offline-1020143628",
+    "precio": 5.7,
+    "stock": 12,
+    "estado": true,
+    "categoriaId": 1,
+    "categoriaNombre": "Analgésicos",
+    "fechaCreacion": "2026-10-20T14:38:04.784447",
+    "fechaModificacion": null
+  }
+}

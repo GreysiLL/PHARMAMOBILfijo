@@ -1,0 +1,25 @@
+{
+  "fechaLima": "2026-10-20T14:36:07.300343-05:00",
+  "apkSha256": "c74c20af5d47ea730c5ec9b7aa07bbfb45c94c3b432e8e28a4d741ec59b82030",
+  "apkBytes": 24641130,
+  "tests": 90,
+  "failures": 0,
+  "claseGenerada": true,
+  "localSinKtorODto": true,
+  "viewModelSinRecargaManual": true,
+  "ios": "Pendiente de compilar y ejecutar en Mac/Xcode",
+  "commitCodigo": "23482ee",
+  "commitPruebas": "5286eaa",
+  "modoAvionVerificado": true,
+  "creacionPendiente": {
+    "idLocal": -1,
+    "pendiente": 1
+  },
+  "productoServidor": {
+    "id": 82,
+    "pendiente": 0,
+    "codigoHttp": 200
+  },
+  "arranqueBackendApagado": true,
+  "capturas": 7
+}

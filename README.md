@@ -164,3 +164,11 @@ Repositorio de la práctica 10: https://github.com/GreysiLL/AP10/tree/feature/au
 ### Comprobaciones de la API con Postman
 
 La carpeta [postman](postman/README.md) permite importar la colección y el entorno local para comprobar PharmaSoft. Incluye los 28 endpoints, 53 solicitudes, login automático de los tres roles y un CRUD de registros exclusivos de prueba. Verificada con Newman: 50 solicitudes ejecutadas y 68 comprobaciones aprobadas, sin fallos. Ventas y creación de usuarios son opcionales y están desactivadas por defecto. Los archivos no contienen tokens reales.
+
+## Persistencia offline-first
+
+La sesión 11 usa SQLDelight 2.1.0 y una base local `pharma.db` como fuente de verdad del inventario. La pantalla observa un Flow; crear, editar y eliminar escriben en SQLite. Los productos nuevos reciben IDs negativos y la marca pendiente hasta sincronizar. **Sincronizar** envía primero los pendientes y después descarga el catálogo paginado. Una confirmación del servidor reemplaza el ID local por uno positivo.
+
+La sesión previamente autenticada puede recuperarse sin red mientras el JWT siga vigente. Los datos locales se separan por usuario. La primera entrada y la renovación de una sesión vencida requieren conexión. Los drivers Android e iOS están registrados; iOS sigue pendiente de ejecutar en Mac/Xcode.
+
+Ver [implementación, pruebas y evidencias de la sesión 11](docs/SESION11/README.md). Ejecutar `verificar-sesion11.ps1` para generar el APK y correr las pruebas.
