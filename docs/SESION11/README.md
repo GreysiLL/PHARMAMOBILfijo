@@ -1,6 +1,7 @@
 # Práctica 11 — Persistencia offline-first
 
 Estudiante: Grease Duran Castro. Rama: `feature/offline-first-duran`.
+Repositorio de entrega: https://github.com/GreysiLL/AP11/tree/feature/offline-first-duran.
 La rama continúa el CRUD autenticado y el diseño de la sesión 10 (`e922aad`).
 No se reemplazó por el `develop` anterior para no perder esas funciones.
 
