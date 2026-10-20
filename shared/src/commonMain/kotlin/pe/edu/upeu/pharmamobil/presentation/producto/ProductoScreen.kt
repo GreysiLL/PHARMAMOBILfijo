@@ -25,7 +25,6 @@ fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, 
         AlertDialog(onDismissRequest = { porEliminar = null }, title = { Text("Eliminar producto") }, text = { Text("¿Eliminar ${producto.nombre} del inventario?") }, confirmButton = { TextButton(onClick = { porEliminar = null; viewModel.eliminar(producto.id) }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) } }, dismissButton = { TextButton(onClick = { porEliminar = null }) { Text("Cancelar") } })
     }
     DisposableEffect(viewModel) { onDispose { viewModel.cancelarOperaciones() } }
-    LaunchedEffect(viewModel) { if(viewModel.uiState.value.fase != ProductoUiState.Fase.Cargando) viewModel.cargarProductos() }
     LaunchedEffect(uiState.formulario.idEdicion) { if(uiState.formulario.idEdicion != null) mostrarFormulario = true }
     LaunchedEffect(uiState.mensajeExito) { if(uiState.mensajeExito != null) mostrarFormulario = false }
 
@@ -42,6 +41,19 @@ fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, 
             }
         }
         if(puedeEscribir && mostrarFormulario) FormularioProductoCard(uiState.formulario, uiState.registrando, viewModel::onNombreChange, viewModel::onPrecioChange, viewModel::onStockChange, viewModel::registrar) { viewModel.cancelarEdicion(); mostrarFormulario = false }
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(if(uiState.pendientes > 0) "${uiState.pendientes} pendiente(s) de envío" else "Datos guardados en el dispositivo", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            TextButton(onClick = viewModel::sincronizar, enabled = !uiState.sincronizando && !uiState.registrando) {
+                Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp)); Spacer(Modifier.width(5.dp))
+                Text(if(uiState.sincronizando) "Sincronizando…" else "Sincronizar")
+            }
+        }
+        uiState.avisoRed?.let { aviso ->
+            Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.secondaryContainer) {
+                Text(aviso, Modifier.padding(12.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+        }
+        if(uiState.sincronizando) LinearProgressIndicator(Modifier.fillMaxWidth())
         uiState.mensajeExito?.let { MensajeExito(it) }
         (uiState.operacion as? ProductoUiState.Operacion.Fallida)?.let { error ->
             Surface(Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.small, color = MaterialTheme.colorScheme.errorContainer) { Column(Modifier.padding(12.dp)) { Text(error.mensaje, color = MaterialTheme.colorScheme.onErrorContainer); TextButton(onClick = viewModel::cargarProductos) { Text("Actualizar listado") } } }
@@ -83,6 +95,7 @@ private fun ProductoItem(producto: ProductoUi, onAbrir: () -> Unit, ocupado: Boo
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) { Text(producto.nombre, style = MaterialTheme.typography.titleMedium); Text(producto.precio, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary) }
                 Icon(Icons.Outlined.ChevronRight, "Ver detalle", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
             }
+            if(producto.pendiente) Text("Pendiente de sincronización", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Surface(shape = MaterialTheme.shapes.extraSmall, color = if(producto.requiereReposicion) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.secondaryContainer, contentColor = if(producto.requiereReposicion) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSecondaryContainer) { Text(if(producto.requiereReposicion) "${producto.stock} · Reponer" else "Stock: ${producto.stock}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) }
                 Spacer(Modifier.weight(1f))

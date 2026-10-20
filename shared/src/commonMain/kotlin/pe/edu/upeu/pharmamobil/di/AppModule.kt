@@ -24,15 +24,19 @@ import pe.edu.upeu.pharmamobil.presentation.producto.ProductoViewModel
 
 
 val dataModule = module {
+    single<app.cash.sqldelight.db.SqlDriver> { get<pe.edu.upeu.pharmamobil.data.local.CreadorDeDriver>().crear() } onClose { it?.close() }
+    single { pe.edu.upeu.pharmamobil.db.PharmaDb(get()) }
+    single { pe.edu.upeu.pharmamobil.data.local.ProductoLocal(get()) }
+    single { pe.edu.upeu.pharmamobil.data.local.SesionLocal(get()) }
     single { pe.edu.upeu.pharmamobil.data.repository.EstadoSesion(get()) }
     single<pe.edu.upeu.pharmamobil.domain.repository.ObservadorSesion> { get<pe.edu.upeu.pharmamobil.data.repository.EstadoSesion>() }
-    single<pe.edu.upeu.pharmamobil.domain.repository.AuthRepository> { pe.edu.upeu.pharmamobil.data.repository.AuthRepositorioRest(get(), get(), get()) }
+    single<pe.edu.upeu.pharmamobil.domain.repository.AuthRepository> { pe.edu.upeu.pharmamobil.data.repository.AuthRepositorioRest(get(), get(), get(), get()) }
     single<HttpClient> { crearHttpClient(get(), get(named("urlBase")), almacen = get(), estadoSesion = get(), esDepuracion = get(named("depuracion"))) } onClose { it?.close() }
     single { ProductoApi(get()) }
     single<pe.edu.upeu.pharmamobil.domain.repository.PruebasErrores> { pe.edu.upeu.pharmamobil.data.remote.PruebasErroresRest(get(), get(named("urlBase"))) }
     single<pe.edu.upeu.pharmamobil.domain.repository.DiagnosticoConexion> { pe.edu.upeu.pharmamobil.data.remote.DiagnosticoConexionRest(get(), get(named("urlBase"))) }
     single { ProductoRepositorioEnMemoria() }
-    single<ProductoRepository> { ProductoRepositorioRest(get(), 1L) }
+    single<ProductoRepository> { pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioOffline(get(), get(), get<pe.edu.upeu.pharmamobil.data.repository.EstadoSesion>().sesion) }
     single<ClienteRepository> { pe.edu.upeu.pharmamobil.data.repository.ClienteRepositorioRest(get()) }
 }
 

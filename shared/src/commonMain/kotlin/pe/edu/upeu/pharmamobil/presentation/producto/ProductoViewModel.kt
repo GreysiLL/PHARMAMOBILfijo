@@ -19,27 +19,35 @@ class ProductoViewModel(
  private var seleccionado: Producto? = null
  private var carga: Job? = null
  private var operacion: Job? = null
- init { cargarProductos() }
- fun cargarProductos() {
-  if (_uiState.value.registrando) return
-  carga?.cancel()
-  carga = viewModelScope.launch {
-   _uiState.update { it.copy(fase = ProductoUiState.Fase.Cargando) }
-   recargar()
-  }
- }
- private suspend fun recargar(): Boolean {
-  var correcto = false
-  listarProductos().onSuccess { productos ->
-   correcto = true
-   _uiState.update { it.copy(fase = if(productos.isEmpty()) ProductoUiState.Fase.SinProductos else ProductoUiState.Fase.ConProductos(productos.map { p -> p.aUi() })) }
-  }.onFailure { fallo ->
-   _uiState.update {
-    if(it.registrando) it.copy(operacion = ProductoUiState.Operacion.Fallida("La operación terminó, pero no pudimos actualizar el listado. " + mensaje(fallo)))
-    else it.copy(fase = ProductoUiState.Fase.Error(mensaje(fallo)))
+ init {
+  viewModelScope.launch {
+   listarProductos.observar().catch { fallo ->
+    _uiState.update { it.copy(fase = ProductoUiState.Fase.Error(mensaje(fallo))) }
+   }.collect { productos ->
+    _uiState.update { it.copy(
+     fase = if(productos.isEmpty()) ProductoUiState.Fase.SinProductos else ProductoUiState.Fase.ConProductos(productos.map { p -> p.aUi() })
+    ) }
    }
   }
-  return correcto
+  viewModelScope.launch {
+   listarProductos.observarPendientes().catch { }.collect { cantidad -> _uiState.update { it.copy(pendientes = cantidad) } }
+  }
+  sincronizar()
+ }
+ fun cargarProductos() = sincronizar()
+ fun sincronizar() {
+  if(_uiState.value.sincronizando || _uiState.value.registrando) return
+  carga = viewModelScope.launch {
+   _uiState.update { it.copy(sincronizando = true) }
+   try {
+    listarProductos.sincronizar().onSuccess {
+     _uiState.update { it.copy(avisoRed = null) }
+    }.onFailure { fallo ->
+     val sinRed = (fallo as? ErrorApiException)?.error in setOf(ErrorApi.SinConexion, ErrorApi.TiempoAgotado)
+     _uiState.update { it.copy(avisoRed = if(sinRed) "Sin conexión: mostrando datos guardados" else mensaje(fallo)) }
+    }
+   } finally { _uiState.update { it.copy(sincronizando = false) } }
+  }
  }
  fun onNombreChange(v: String) { if(!_uiState.value.registrando) _uiState.update { it.copy(formulario=it.formulario.copy(nombre=v,nombreError=null),mensajeExito=null) } }
  fun onPrecioChange(v: String) { if(!_uiState.value.registrando) _uiState.update { it.copy(formulario=it.formulario.copy(precio=v,precioError=null),mensajeExito=null) } }
@@ -70,7 +78,7 @@ class ProductoViewModel(
    result.onSuccess { producto ->
     seleccionado=null
     _uiState.update { it.copy(formulario=FormularioProducto(),mensajeExito=if(existente==null) "Producto \"${producto.nombre}\" registrado correctamente" else "Producto actualizado") }
-    if(recargar()) _uiState.update { it.copy(operacion=ProductoUiState.Operacion.Inactiva) }
+    _uiState.update { it.copy(operacion=ProductoUiState.Operacion.Inactiva) }
    }.onFailure(::manejarFallo)
   }
  }
@@ -81,12 +89,13 @@ class ProductoViewModel(
    eliminarProducto(id).onSuccess {
     if(seleccionado?.id==id) { seleccionado=null;_uiState.update { it.copy(formulario=FormularioProducto()) } }
     _uiState.update { it.copy(mensajeExito="Producto eliminado") }
-    if(recargar()) _uiState.update { it.copy(operacion=ProductoUiState.Operacion.Inactiva) }
+    _uiState.update { it.copy(operacion=ProductoUiState.Operacion.Inactiva) }
    }.onFailure(::manejarFallo)
   }
  }
  fun cancelarOperaciones() {
   carga?.cancel()
+  _uiState.update { it.copy(sincronizando = false) }
   operacion?.cancel()
   _uiState.update { it.copy(operacion=ProductoUiState.Operacion.Inactiva, fase=if(it.fase==ProductoUiState.Fase.Cargando) ProductoUiState.Fase.SinProductos else it.fase) }
  }

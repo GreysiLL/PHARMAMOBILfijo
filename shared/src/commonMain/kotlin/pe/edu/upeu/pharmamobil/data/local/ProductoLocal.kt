@@ -11,6 +11,7 @@ import pe.edu.upeu.pharmamobil.domain.error.*
 class ProductoLocal(base: PharmaDb, private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
  private val q = base.productoQueries
  fun observar(usuario: String) = q.listarTodos(usuario).asFlow().mapToList(dispatcher).map { filas -> filas.map { it.aDominio() } }
+ fun observarPendientes(usuario: String) = q.listarPendientes(usuario).asFlow().mapToList(dispatcher).map { it.size }
  fun listar(usuario: String) = q.listarTodos(usuario).executeAsList().map { it.aDominio() }
  fun pendientes(usuario: String) = q.listarPendientes(usuario).executeAsList().map { it.aDominio() }
  fun obtener(usuario: String, id: Long) = q.obtener(usuario, id).executeAsOneOrNull()?.aDominio()
@@ -25,6 +26,7 @@ class ProductoLocal(base: PharmaDb, private val dispatcher: CoroutineDispatcher 
   return guardado
  }
  fun modificar(usuario: String, producto: Producto) { insertar(usuario, producto.copy(pendiente = true)) }
+ fun restaurar(usuario: String, producto: Producto) { insertar(usuario, producto) }
  fun borrar(usuario: String, id: Long) = q.borrar(usuario, id)
  // Confirmar cada subida inmediatamente evita repetir POST si después falla la descarga.
  fun confirmar(usuario: String, idLocal: Long, remoto: Producto) { q.transaction {

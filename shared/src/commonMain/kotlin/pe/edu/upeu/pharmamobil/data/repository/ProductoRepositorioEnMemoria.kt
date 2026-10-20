@@ -21,6 +21,8 @@ class ProductoRepositorioEnMemoria : ProductoRepository {
 
     private val candado = Mutex()
     private val productos = mutableListOf<Producto>()
+    private val cambios = kotlinx.coroutines.flow.MutableStateFlow(productos.filter { it.estado })
+    override fun observar(): kotlinx.coroutines.flow.Flow<List<Producto>> = cambios
     private var siguienteId = 1L
 
     override suspend fun registrar(producto: Producto): Producto {
@@ -28,6 +30,7 @@ class ProductoRepositorioEnMemoria : ProductoRepository {
         return candado.withLock {
             val guardado = producto.copy(id = siguienteId++)
             productos.add(guardado)
+        cambios.value = productos.filter { it.estado }
             guardado
         }
     }
@@ -46,6 +49,7 @@ class ProductoRepositorioEnMemoria : ProductoRepository {
         val index = productos.indexOfFirst { it.id == producto.id }
         if (index < 0) throw pe.edu.upeu.pharmamobil.domain.error.ErrorApiException(pe.edu.upeu.pharmamobil.domain.error.ErrorApi.NoEncontrado)
         productos[index] = producto
+        cambios.value = productos.filter { it.estado }
         producto
     }
     override suspend fun eliminar(id: Long) { candado.withLock {
@@ -53,6 +57,7 @@ class ProductoRepositorioEnMemoria : ProductoRepository {
         if (index < 0) throw pe.edu.upeu.pharmamobil.domain.error.ErrorApiException(pe.edu.upeu.pharmamobil.domain.error.ErrorApi.NoEncontrado)
         if (!productos[index].estado) throw pe.edu.upeu.pharmamobil.domain.error.ErrorApiException(pe.edu.upeu.pharmamobil.domain.error.ErrorApi.Conflicto("El producto ya está inactivo."))
         productos[index] = productos[index].copy(estado = false)
+        cambios.value = productos.filter { it.estado }
     } }
     private companion object {
         const val RETARDO_REGISTRO_MS = 400L

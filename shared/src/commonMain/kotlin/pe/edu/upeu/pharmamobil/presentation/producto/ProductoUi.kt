@@ -9,6 +9,7 @@ data class ProductoUi(
     val nombre: String,
     val precio: String,
     val stock: String,
+    val pendiente: Boolean = false,
     val requiereReposicion: Boolean
 )
 
@@ -17,6 +18,7 @@ fun Producto.aUi(): ProductoUi = ProductoUi(
     nombre = nombre,
     precio = formatearSoles(precio),
     stock = "$stock u.",
+    pendiente = pendiente,
     requiereReposicion = requiereReposicion
 )
 

@@ -7,6 +7,9 @@ class ListarProductosUseCase(
     private val productoRepository: ProductoRepository
 ) {
 
+    fun observar() = productoRepository.observar()
+    fun observarPendientes() = productoRepository.observarPendientes()
+    suspend fun sincronizar() = resultadoDe { productoRepository.sincronizar() }
     suspend operator fun invoke(): Result<List<Producto>> = resultadoDe {
         productoRepository.listar()
     }
