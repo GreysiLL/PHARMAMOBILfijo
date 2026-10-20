@@ -113,4 +113,25 @@ class ProductoRepositorioOfflineTest {
   repo.eliminar(11)
   assertTrue(repo.observar().first().isEmpty());assertTrue(local.pendientes("admin").isEmpty())
  }
+ @Test fun conservaLaUltimaSincronizacionSiLaSiguienteFalla() = runTest {
+  val d=UnconfinedTestDispatcher(testScheduler);val local=ProductoLocal(base(),d);var red=true;var reloj=1000L
+  val repo=ProductoRepositorioOffline(local,ProductoApi(cliente(MockEngine { if(red) json(pagina()) else throw kotlinx.io.IOException("sin red") })),MutableStateFlow(sesion),d,{ reloj })
+  assertNull(repo.ultimaSincronizacion().first())
+  repo.sincronizar();assertEquals(1000L,repo.ultimaSincronizacion().first())
+  red=false;reloj=2000
+  assertFailsWith<ErrorApiException> { repo.sincronizar() }
+  assertEquals(1000L,repo.ultimaSincronizacion().first())
+ }
+ @Test fun migracionDeVersionUnoADosConservaProductos() = runTest {
+  val driver=driverEnMemoria().also(drivers::add);val base=PharmaDb(driver)
+  val local=ProductoLocal(base,UnconfinedTestDispatcher(testScheduler))
+  local.reemplazarSincronizados("admin",listOf(Producto(12,"Conservado",2.0,10)))
+  driver.execute(null,"DROP TABLE sincronizacion",0)
+  assertEquals(2L,PharmaDb.Schema.version)
+  PharmaDb.Schema.migrate(driver,1,2)
+  base.sincronizacionQueries.guardar("admin",1000)
+  assertEquals("Conservado",local.listar("admin").single().nombre)
+  assertEquals(1000L,local.ultimaSincronizacion("admin").first())
+ }
+
 }

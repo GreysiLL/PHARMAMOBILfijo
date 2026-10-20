@@ -11,6 +11,7 @@ kotlin {
     }
 }
 dependencies {
+    debugImplementation(libs.sqldelight.runtime)
     debugImplementation(libs.compose.foundation)
     debugImplementation(libs.compose.material3)
     debugImplementation(libs.ktor.client.core)
@@ -40,6 +41,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            if(providers.gradleProperty("aa11Pruebas").orNull == "true") applicationIdSuffix = ".aa11"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(

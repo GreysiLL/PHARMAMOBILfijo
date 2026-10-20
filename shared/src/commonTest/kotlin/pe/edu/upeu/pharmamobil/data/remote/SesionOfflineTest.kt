@@ -59,4 +59,16 @@ class SesionOfflineTest {
    assertNull(estado.sesion.value);assertNull(store.valor)
   } finally { client.close();driver.close() }
  }
+ @Test fun tokenVencidoSinRedAbreSoloLecturaYNoPermiteEscritura() = runTest {
+  val driver=driverEnMemoria();val cache=SesionLocal(PharmaDb(driver));val jwt=token(1)
+  cache.guardar(Sesion(jwt,"admin","Admin",setOf("CATALOGO_LEER","CATALOGO_ESCRIBIR","CLIENTES_LEER")))
+  val store=Almacen(jwt);val estado=EstadoSesion(store)
+  val client=crearHttpClient(MockEngine { throw kotlinx.io.IOException("sin red") },"http://localhost/api/v1/",almacen=store,estadoSesion=estado,esDepuracion=false)
+  try {
+   val sesion=assertNotNull(AuthRepositorioRest(client,store,estado,cache).sesionGuardada())
+   assertTrue(sesion.soloLecturaLocal);assertTrue(sesion.puede("CATALOGO_LEER"))
+   assertFalse(sesion.puede("CATALOGO_ESCRIBIR"));assertFalse(sesion.puede("CLIENTES_LEER"))
+  } finally { client.close();driver.close() }
+ }
+
 }

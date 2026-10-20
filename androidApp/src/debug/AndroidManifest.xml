@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application>
+        <activity android:name=".PruebasAutonoma11Activity" android:exported="true" android:label="Escenarios AA11" />
         <activity android:name=".PruebasSeguridadActivity" android:exported="true" />
         <activity android:name=".PruebasConexionActivity" android:exported="true" android:label="Pruebas S07" />
         <activity android:name=".PruebasErroresActivity" android:exported="true" android:label="Errores S08" />
