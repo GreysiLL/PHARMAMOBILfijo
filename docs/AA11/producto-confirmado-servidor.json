@@ -1,0 +1,15 @@
+{
+  "fecha": "2026-10-20T15:18:46.764173-05:00",
+  "codigoHttp": 200,
+  "producto": {
+    "id": 83,
+    "nombre": "AA11-1020151700",
+    "precio": 6.2,
+    "stock": 15,
+    "estado": true,
+    "categoriaId": 1,
+    "categoriaNombre": "Analgésicos",
+    "fechaCreacion": "2026-10-20T15:18:35.485012",
+    "fechaModificacion": null
+  }
+}

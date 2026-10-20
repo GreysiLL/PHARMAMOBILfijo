@@ -1,0 +1,8 @@
+{
+  "fecha": "2026-10-20T15:20:50.894395-05:00",
+  "tipo": "JWT de prueba firmado con clave de desarrollo local; exp vencida hace una hora",
+  "algoritmo": "HS512",
+  "exp": 1792524050,
+  "codigoHttpServidor": 401,
+  "respuesta": "{\"timestamp\":\"2026-10-20T15:20:50.831415\",\"status\":401,\"error\":\"Unauthorized\",\"message\":\"El token ha expirado. Inicie sesión nuevamente\",\"path\":\"/api/v1/auth/me\",\"validationErrors\":null}"
+}

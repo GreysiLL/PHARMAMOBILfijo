@@ -169,6 +169,14 @@ La carpeta [postman](postman/README.md) permite importar la colección y el ento
 
 La sesión 11 usa SQLDelight 2.1.0 y una base local `pharma.db` como fuente de verdad del inventario. La pantalla observa un Flow; crear, editar y eliminar escriben en SQLite. Los productos nuevos reciben IDs negativos y la marca pendiente hasta sincronizar. **Sincronizar** envía primero los pendientes y después descarga el catálogo paginado. Una confirmación del servidor reemplaza el ID local por uno positivo.
 
-La sesión previamente autenticada puede recuperarse sin red mientras el JWT siga vigente. Los datos locales se separan por usuario. La primera entrada y la renovación de una sesión vencida requieren conexión. Los drivers Android e iOS están registrados; iOS sigue pendiente de ejecutar en Mac/Xcode.
+La sesión previamente autenticada puede recuperarse sin red. Si el JWT está vencido, el catálogo guardado queda disponible solo para lectura; al reconectar se solicita iniciar sesión nuevamente. Los datos locales se separan por usuario. La primera autenticación y la renovación requieren conexión. Los drivers Android e iOS están registrados; iOS sigue pendiente de ejecutar en Mac/Xcode.
 
 Ver [implementación, pruebas y evidencias de la sesión 11](docs/SESION11/README.md). Ejecutar `verificar-sesion11.ps1` para generar el APK y correr las pruebas.
+
+## Actividad autónoma 11
+
+La rama `feature/autonoma11-duran` agrega seis casos de prueba, cinco escenarios documentados y la fecha de la última sincronización correcta. El inventario informa si los datos son recientes, antiguos o nunca se sincronizaron. La migración de la base conserva los productos existentes.
+
+Ver el [informe sin referencias y las evidencias](docs/AA11/README.md). Resultado verificado: 102 pruebas aprobadas, incluidas las seis de la suite autónoma. Ejecutar `verificar-autonoma11.ps1`; agregar `-SoloSuite` para ejecutar únicamente esos seis casos.
+
+Las pruebas destructivas y las fixtures se ejecutaron en una instalación debug aislada (`-InstalacionAislada`), conservando los datos de la aplicación habitual. La ejecución y captura en iOS quedan pendientes por falta de Mac/Xcode.

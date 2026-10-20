@@ -1,0 +1,23 @@
+{
+  "rama": "feature/autonoma11-duran",
+  "repositorio": "https://github.com/GreysiLL/AP11/tree/feature/autonoma11-duran",
+  "pruebas": {
+    "tests": 102,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "suiteSeis": {
+    "tests": 6,
+    "failures": 0
+  },
+  "capturas": 9,
+  "commitImplementacion": "aadca12",
+  "commitPruebas": "fa80973",
+  "productoServidor": 83,
+  "apkAisladoSha256": "bf3b4f22c29dedbe32e44cc86843c221e89436639d7c079533687776bf644845",
+  "apkNormalSha256": "3b2e3eabc2d56f7e2f008d82574489e539d51d8647c7399f86ffb527db4c3ba0",
+  "ios": "Pendiente de ejecutar en Mac/Xcode",
+  "fixtureAntiguedad": "Marca de dos días aplicada por herramienta debug en paquete aislado; no son dos días de espera real",
+  "fixtureSesion": "JWT de prueba firmado y vencido validado con 401 en el backend; clave y JWT no publicados"
+}

@@ -9,8 +9,8 @@ import kotlin.time.Clock
 class SesionLocal(base: PharmaDb) {
  private val q = base.sesionGuardadaQueries
  fun guardar(s: Sesion) = q.guardar(s.usuario, s.nombreCompleto, JsonArray(s.permisos.map(::JsonPrimitive)).toString())
- // Solo restaura una sesión previamente validada y aún vigente. Esto no valida la firma;
- // toda autorización de red continúa siendo responsabilidad de PharmaSoft.
+ // Solo restaura metadatos de una sesión validada previamente. El permiso explícito
+ // para una sesión vencida habilita lectura local; no valida la firma ni renueva el JWT.
  @OptIn(ExperimentalEncodingApi::class)
  fun recuperar(token: String, permitirVencidaSoloLectura: Boolean = false): Sesion? = try {
   val partes = token.split('.')

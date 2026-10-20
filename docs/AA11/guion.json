@@ -1,0 +1,32 @@
+[
+  [
+    "0 a 1",
+    "Autenticación JWT",
+    "admin / Admin123",
+    "Mostrar un login incorrecto, corregir la clave y entrar al inventario. Explicar que Ktor obtiene y adjunta el JWT y que el almacén lo cifra."
+  ],
+  [
+    "1 a 3",
+    "REST y CRUD completo",
+    "admin",
+    "Listar, registrar DemoU2 con precio 4.50 y stock 12, editar precio a 5.20 y eliminar solo ese producto. Contrastar la petición y la respuesta del servidor."
+  ],
+  [
+    "3 a 5",
+    "Estados y errores",
+    "almacen / Almacen123",
+    "Cerrar sesión, entrar con almacén, enviar el formulario vacío y señalar los errores bajo los campos. Mostrar GET clientes en Swagger con el token de almacén: 403; la sesión de la app se mantiene."
+  ],
+  [
+    "5 a 7",
+    "Persistencia offline-first",
+    "almacen",
+    "Modo avión y Wi-Fi/datos apagados: reabrir, mostrar catálogo y antigüedad, crear DemoOffline pendiente, reconectar, pulsar Sincronizar y comprobar el ID positivo en Swagger."
+  ],
+  [
+    "7 a 8",
+    "Contraste por plataforma",
+    "Misma cuenta",
+    "Mostrar la ejecución Android y ubicar los drivers Android/iOS y el código común. La ejecución iOS está pendiente por falta de Mac; explicar esta limitación y no presentar código como si fuera una ejecución."
+  ]
+]

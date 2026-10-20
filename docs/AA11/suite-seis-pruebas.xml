@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-10-20T19:58:16.174Z" hostname="LAPTOP-476K1L40" time="1.573">
+  <properties/>
+  <testcase name="T05_identificadoresLocalesYRemotosNoColisionan" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="1.069"/>
+  <testcase name="T01_sincronizacionConRedEmiteTodasLasPaginas" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="0.372"/>
+  <testcase name="T03_reconexionEnviaYPoneLaMarcaEnCero" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="0.078"/>
+  <testcase name="T02_registroSinRedQuedaPendienteYEmiteElFlow" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="0.015"/>
+  <testcase name="T06_sincronizarDosVecesNoDuplicaFilasNiPost" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="0.021"/>
+  <testcase name="T04_laBajadaConservaLoPendiente" classname="pe.edu.upeu.pharmamobil.data.repository.Autonoma11SuiteTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[SLF4J(W): No SLF4J providers were found.
+SLF4J(W): Defaulting to no-operation (NOP) logger implementation
+SLF4J(W): See https://www.slf4j.org/codes.html#noProviders for further details.
+]]></system-err>
+</testsuite>

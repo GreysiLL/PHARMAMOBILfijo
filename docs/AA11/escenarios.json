@@ -1,0 +1,57 @@
+[
+  {
+    "id": "E01",
+    "nombre": "Apertura sin red con datos previos",
+    "cap": "E01-apertura-sin-red.png",
+    "pasos": "Iniciar sesión con admin y sincronizar. Cerrar por completo la app, activar modo avión, desactivar Wi-Fi y datos, y reabrir.",
+    "observado": "El inventario muestra los cuatro productos guardados, el aviso sin conexión y la antigüedad de la última sincronización.",
+    "base": "Cuatro filas sincronizadas, sin pendientes; se conserva la marca de la última sincronización correcta.",
+    "conclusion": "La lectura depende de SQLite y no de que PharmaSoft responda.",
+    "fecha": "2026-10-20T15:16:40.205120-05:00",
+    "plataforma": "Android 16 API 36, Pixel 9 (2), instalación aislada .aa11"
+  },
+  {
+    "id": "E02",
+    "nombre": "Registro sin red",
+    "cap": "E02-registro-pendiente.png",
+    "pasos": "En modo avión registrar AA11-1020151700, precio 6.20 y stock 15. Revisar la fila y el contador de pendientes.",
+    "observado": "La lista incorpora el producto y lo identifica como pendiente; el listado no se pierde.",
+    "base": "Cinco filas: cuatro sincronizadas y una con id -1, pendiente 1, precio 6.20 y stock 15.",
+    "conclusion": "El registro se conserva localmente aunque el envío no pueda completarse.",
+    "fecha": "2026-10-20T15:18:24.420371-05:00",
+    "plataforma": "Android 16 API 36, Pixel 9 (2), instalación aislada .aa11"
+  },
+  {
+    "id": "E03",
+    "nombre": "Reconexión y envío",
+    "cap": "E03-reconexion.png",
+    "pasos": "Desactivar modo avión, habilitar Wi-Fi y datos y pulsar Sincronizar. Consultar el producto por ID en Swagger con autorización de admin.",
+    "observado": "El pendiente desaparece y Swagger devuelve 200 para el producto con ID 83.",
+    "base": "La fila negativa se sustituye por id 83, pendiente 0. Hay cinco filas y solo una corresponde al producto de prueba.",
+    "conclusion": "La comprobación del servidor acredita que el dato salió del dispositivo, sin duplicarse.",
+    "fecha": "2026-10-20T15:18:46.015150-05:00",
+    "plataforma": "Android 16 API 36, Pixel 9 (2), instalación aislada .aa11"
+  },
+  {
+    "id": "E04",
+    "nombre": "Primera apertura sin red",
+    "cap": "E04-primera-apertura.png",
+    "pasos": "Borrar datos exclusivamente del paquete aislado pe.edu.upeu.pharmamobil.aa11. Activar modo avión y abrir. Desde el login pulsar Ver catálogo sin conexión.",
+    "observado": "Se muestra Inventario local, Nunca sincronizado y la explicación de que hace falta iniciar sesión con red para descargar el catálogo.",
+    "base": "Sin productos ni marca de sincronización. La inspección run-as confirmó que pharma.db todavía no estaba creado: el driver abre SQLite de forma diferida al ejecutar la primera consulta.",
+    "conclusion": "Sin una cuenta validada ni un catálogo descargado corresponde un estado vacío informativo; no se inventan datos ni se expone la caché de otra cuenta.",
+    "fecha": "2026-10-20T14:59:02.501155-05:00",
+    "plataforma": "Android 16 API 36, Pixel 9 (2), instalación aislada .aa11"
+  },
+  {
+    "id": "E05",
+    "nombre": "Sesión expirada sin red",
+    "cap": "E05-sesion-vencida-sin-red.png",
+    "pasos": "Con admin validado y cinco productos locales, cargar en la instalación aislada un JWT de prueba firmado con exp de hace una hora. Confirmar previamente 401 en auth/me, activar modo avión y reabrir. Después reconectar y pulsar Sincronizar.",
+    "observado": "Sin red se muestra el inventario en modo lectura, con aviso de sesión vencida; no hay Nuevo producto ni acciones de edición o eliminación. Al reconectar, el 401 devuelve al login. Tras iniciar sesión válidamente se recupera el uso normal.",
+    "base": "Las cinco filas y la marca de sincronización se conservan tanto durante la consulta local como después del 401.",
+    "conclusion": "Es preferible permitir la consulta de datos ya guardados con un aviso claro a exigir un login imposible sin red. Se bloquean escrituras y el servidor decide al reconectar; no se renueva ni se valida la firma del JWT en el cliente.",
+    "fecha": "2026-10-20T15:21:10.862535-05:00",
+    "plataforma": "Android 16 API 36, Pixel 9 (2), instalación aislada .aa11"
+  }
+]
