@@ -12,7 +12,6 @@ Tabla preliminar basada en revisión del código. El recorrido completo en el di
 | Token vencido | Comprobar si se conserva el borrador. | Alta | Revisar en sesión 14 si queda pendiente |
 | Cerrar sesión | Comprobar eliminación del token y aislamiento entre cuentas. | Alta | Verificar hoy |
 
-Evidencias pendientes: sincronización con filas pendientes y los tres estados del permiso de notificaciones en Android 13 o superior. No confundir la prueba de compartir de la sesión 9 con una evidencia de esta sesión.
 ## Evidencias verificadas en el Pixel
 
 - [Sesión anterior vencida](sesion13-login.png): la app mostró el aviso y permitió volver a iniciar sesión.
@@ -22,4 +21,6 @@ Evidencias pendientes: sincronización con filas pendientes y los tres estados d
 - [Reconexión](s13-reconexion.png): tras sincronizar hubo cero pendientes y el inventario conservó siete productos.
 - [Pruebas automatizadas](pruebas.log): 102 pruebas aprobadas.
 
-Quedan pendientes la integración de Firebase y las comprobaciones manuales de validación del servidor y cierre de sesión.
+- [Crashlytics](crashlytics-reporte.png): la consola recibió el error recuperable «Fallo de sincronización de productos».
+
+Aún no se documentaron las comprobaciones manuales de validación del servidor, cierre de sesión ni recepción de una notificación FCM.

@@ -5,3 +5,5 @@ La variante Android con configuración incluye Crashlytics y Messaging 2.7.0 de 
 El archivo androidApp/google-services.json se excluye de Git. Con él se activan Google Services y Crashlytics; sin él se compila con un adaptador local sin envío de datos.
 
 La compilación con GitLive está en gitlive-build.log. La recepción de un reporte en consola y la entrega de una notificación FCM son verificaciones independientes de la compilación.
+
+Crashlytics recibió el error recuperable de prueba: [captura de la consola](crashlytics-reporte.png). La recepción de una notificación FCM no se verificó.
