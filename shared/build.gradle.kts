@@ -43,6 +43,7 @@ kotlin {
     
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
             implementation(libs.sqldelight.android)
             // OkHttp 5.5 exige SDK 37; conservamos compatibilidad con SDK 36.
             implementation(project.dependencies.enforcedPlatform(libs.okhttp.bom))
@@ -95,3 +96,4 @@ tasks.withType<Test>().configureEach {
     }
 }
 sqldelight { databases { create("PharmaDb") { packageName.set("pe.edu.upeu.pharmamobil.db") } } }
+
