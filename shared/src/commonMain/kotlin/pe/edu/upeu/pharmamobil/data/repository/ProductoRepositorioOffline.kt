@@ -26,6 +26,9 @@ class ProductoRepositorioOffline(
  override fun observarPendientes(): Flow<Int> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
   if(it == null) flowOf(0) else local.observarPendientes(it)
  }
+ override fun observarFallidas(): Flow<Int> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
+  if(it == null) flowOf(0) else local.observarFallidas(it)
+ }
  override fun ultimaSincronizacion(): Flow<Long?> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
   if(it == null) flowOf(null) else local.ultimaSincronizacion(it)
  }
@@ -36,10 +39,10 @@ class ProductoRepositorioOffline(
   val usuario = usuario()
   exigirEscritura()
   val guardado = local.guardarPendiente(usuario, producto)
-  try { sincronizarDentro(usuario) }
+  try { sincronizarDentro(usuario, guardado.id) }
   catch(e: CancellationException) { throw e }
   catch(e: ErrorApiException) {
-   if(e.error !in setOf(ErrorApi.SinConexion, ErrorApi.TiempoAgotado) && local.pendientes(usuario).any { it.id == guardado.id }) {
+   if(e.error is ErrorApi.Validacion && local.pendientes(usuario).any { it.id == guardado.id }) {
     // Una validación o un permiso rechazado se informa, sin acumular POST inválidos.
     local.borrar(usuario, guardado.id); throw e
    }
@@ -49,9 +52,9 @@ class ProductoRepositorioOffline(
  override suspend fun actualizar(producto: Producto): Producto = withContext(dispatcher) { mutex.withLock {
   val usuario = usuario(); val anterior = local.obtener(usuario, producto.id); exigirEscritura()
   val guardado = producto.copy(pendiente = true); local.modificar(usuario, guardado)
-  try { sincronizarDentro(usuario) }
+  try { sincronizarDentro(usuario, guardado.id) }
   catch(e: CancellationException) { throw e }
-  catch(e: ErrorApiException) { if(e.error !in setOf(ErrorApi.SinConexion, ErrorApi.TiempoAgotado) && local.pendientes(usuario).any { it.id == anterior.id }) { local.restaurar(usuario, anterior); throw e } }
+  catch(e: ErrorApiException) { if(e.error is ErrorApi.Validacion && local.pendientes(usuario).any { it.id == anterior.id }) { local.restaurar(usuario, anterior); throw e } }
   guardado
  } }
  override suspend fun eliminar(id: Long) = withContext(dispatcher) { mutex.withLock {
@@ -60,13 +63,18 @@ class ProductoRepositorioOffline(
    local.modificar(usuario, anterior.copy(estado = false))
    try { sincronizarDentro(usuario) }
    catch(e: CancellationException) { throw e }
-   catch(e: ErrorApiException) { if(e.error !in setOf(ErrorApi.SinConexion, ErrorApi.TiempoAgotado) && local.pendientes(usuario).any { it.id == id }) { local.restaurar(usuario, anterior); throw e } }
+   catch(e: ErrorApiException) { if(e.error is ErrorApi.Validacion && local.pendientes(usuario).any { it.id == id }) { local.restaurar(usuario, anterior); throw e } }
   }
  }; Unit }
  override suspend fun sincronizar() = withContext(dispatcher) { mutex.withLock { sincronizarDentro(usuario()) } }
- private suspend fun sincronizarDentro(usuario: String) {
+ private suspend fun sincronizarDentro(usuario: String, operacionActual: Long? = null) {
   // Siempre SUBIR antes de BAJAR. Mutex evita dos envíos simultáneos de la misma fila.
+  var primerFallo: ErrorApiException? = null
   for(p in local.pendientes(usuario)) {
+   val intentos = local.intentos(usuario, p.id)
+   if(intentos >= 5L) continue
+   if(intentos > 0L) delay(1_000L shl intentos.toInt().minus(1).coerceIn(0, 4))
+   try {
    comprobarUsuario(usuario)
    if(!p.estado) {
     try { remoto.eliminar(p.id) } catch(e: ErrorApiException) { if(e.error != ErrorApi.NoEncontrado) throw e }
@@ -77,6 +85,18 @@ class ProductoRepositorioOffline(
     local.confirmar(usuario, p.id, confirmado)
    }
   }
+   catch(e: ErrorApiException) {
+    if(e.error == ErrorApi.SesionExpirada) throw e
+    val temporal = e.error in setOf(ErrorApi.SinConexion, ErrorApi.TiempoAgotado, ErrorApi.Servidor)
+    // Un POST con resultado incierto no se reenvía: podría crear un duplicado.
+    val postIncierto = p.id < 0 && e.error in setOf(ErrorApi.TiempoAgotado, ErrorApi.Servidor, ErrorApi.RespuestaInvalida)
+    local.registrarFallo(usuario, p.id, if(temporal && !postIncierto) intentos + 1L else 5L,
+     if(postIncierto) "Comprueba si el producto llegó al servidor antes de volver a crearlo." else mensajeDe(e.error))
+    if(p.id == operacionActual && e.error is ErrorApi.Validacion) throw e
+    if(primerFallo == null) primerFallo = e
+   }
+  }
+  primerFallo?.let { throw it } 
   val productos = mutableListOf<Producto>(); var numero = 0
   do {
    comprobarUsuario(usuario)
@@ -85,6 +105,7 @@ class ProductoRepositorioOffline(
   } while(!pagina.ultima)
   comprobarUsuario(usuario)
   local.reemplazarSincronizados(usuario, productos, ahoraMillis())
+  primerFallo?.let { throw it }
  }
  private fun comprobarUsuario(esperado: String) { if(usuario() != esperado) throw ErrorApiException(ErrorApi.SesionExpirada) }
 }

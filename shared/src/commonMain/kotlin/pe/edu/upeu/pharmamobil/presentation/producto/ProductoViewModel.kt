@@ -35,6 +35,9 @@ class ProductoViewModel(
   viewModelScope.launch {
    listarProductos.ultimaSincronizacion().catch { }.collect { instante -> _uiState.update { it.copy(ultimaSincronizacion = instante) } }
   }
+  viewModelScope.launch {
+   listarProductos.observarFallidas().collect { cantidad -> _uiState.update { it.copy(fallidas = cantidad) } }
+  }
   sincronizar()
  }
  fun cargarProductos() = sincronizar()

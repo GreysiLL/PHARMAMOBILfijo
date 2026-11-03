@@ -10,6 +10,7 @@ class ListarProductosUseCase(
     fun ultimaSincronizacion() = productoRepository.ultimaSincronizacion()
     fun observar() = productoRepository.observar()
     fun observarPendientes() = productoRepository.observarPendientes()
+    fun observarFallidas() = productoRepository.observarFallidas()
     suspend fun sincronizar() = resultadoDe { productoRepository.sincronizar() }
     suspend operator fun invoke(): Result<List<Producto>> = resultadoDe {
         productoRepository.listar()

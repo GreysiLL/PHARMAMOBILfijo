@@ -13,9 +13,13 @@ class ProductoLocal(base: PharmaDb, private val dispatcher: CoroutineDispatcher 
  private val meta = base.sincronizacionQueries
  fun ultimaSincronizacion(usuario: String) = meta.obtener(usuario).asFlow().mapToList(dispatcher).map { it.firstOrNull() }
  fun observar(usuario: String) = q.listarTodos(usuario).asFlow().mapToList(dispatcher).map { filas -> filas.map { it.aDominio() } }
- fun observarPendientes(usuario: String) = q.listarPendientes(usuario).asFlow().mapToList(dispatcher).map { it.size }
+ fun observarPendientes(usuario: String) = q.listarPendientes(usuario).asFlow().mapToList(dispatcher).map { filas -> filas.count { it.intentos < 5L } }
  fun listar(usuario: String) = q.listarTodos(usuario).executeAsList().map { it.aDominio() }
  fun pendientes(usuario: String) = q.listarPendientes(usuario).executeAsList().map { it.aDominio() }
+ fun observarFallidas(usuario: String) = q.contarFallidas(usuario).asFlow().mapToList(dispatcher).map { it.single().toInt() }
+ fun intentos(usuario: String, id: Long) = q.obtener(usuario, id).executeAsOne().intentos
+ fun registrarFallo(usuario: String, id: Long, intentos: Long, motivo: String) =
+  q.registrarFallo(intentos, motivo, usuario, id)
  fun obtener(usuario: String, id: Long) = q.obtener(usuario, id).executeAsOneOrNull()?.aDominio()
      ?: throw ErrorApiException(ErrorApi.NoEncontrado)
  fun guardarPendiente(usuario: String, producto: Producto): Producto {

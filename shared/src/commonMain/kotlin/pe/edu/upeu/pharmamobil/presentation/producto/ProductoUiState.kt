@@ -7,6 +7,7 @@ data class ProductoUiState(
  val sincronizando: Boolean = false,
  val avisoRed: String? = null,
  val pendientes: Int = 0,
+ val fallidas: Int = 0,
  val ultimaSincronizacion: Long? = null
 ) {
  val registrando: Boolean get() = operacion is Operacion.EnCurso

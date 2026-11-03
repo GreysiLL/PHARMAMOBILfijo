@@ -43,9 +43,10 @@ fun ProductoScreen(viewModel: ProductoViewModel, modifier: Modifier = Modifier, 
                 else Button(enabled = !uiState.registrando, onClick = { mostrarFormulario = true }, shape = MaterialTheme.shapes.small) { Icon(Icons.Outlined.Add, null, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text("Nuevo producto") }
             }
         }
+        PermisoNotificaciones()
         if(puedeEscribir && mostrarFormulario) FormularioProductoCard(uiState.formulario, uiState.registrando, viewModel::onNombreChange, viewModel::onPrecioChange, viewModel::onStockChange, viewModel::registrar) { viewModel.cancelarEdicion(); mostrarFormulario = false }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(if(uiState.pendientes > 0) "${uiState.pendientes} pendiente(s) de envío" else "Datos guardados en el dispositivo", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("${uiState.pendientes} pendiente(s) · ${uiState.fallidas} fallida(s)", style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(onClick = viewModel::sincronizar, enabled = !uiState.sincronizando && !uiState.registrando) {
                 Icon(Icons.Outlined.Sync, null, Modifier.size(18.dp)); Spacer(Modifier.width(5.dp))
                 Text(if(uiState.sincronizando) "Sincronizando…" else "Sincronizar")
@@ -112,3 +113,4 @@ private fun ProductoItem(producto: ProductoUi, onAbrir: () -> Unit, ocupado: Boo
         }
     }
 }
+
