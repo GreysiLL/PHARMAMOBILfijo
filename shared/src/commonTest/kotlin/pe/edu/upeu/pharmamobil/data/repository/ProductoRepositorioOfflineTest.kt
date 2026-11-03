@@ -29,7 +29,7 @@ class ProductoRepositorioOfflineTest {
   val d=UnconfinedTestDispatcher(testScheduler);val local=ProductoLocal(base(),d)
   val repo=ProductoRepositorioOffline(local,ProductoApi(cliente(MockEngine { throw kotlinx.io.IOException("sin red") })),MutableStateFlow(sesion),d)
   val creado=repo.registrar(Producto(0,"Nuevo offline",4.5,20))
-  assertTrue(creado.id < 0);assertTrue(creado.pendiente)
+  assertTrue(creado.id < 0);assertTrue(creado.pendiente);assertEquals(1L, local.intentos("admin", creado.id));assertEquals(0, repo.observarFallidas().first())
   val fila=repo.observar().first().single();assertEquals(creado,fila)
  }
  @Test fun reconectarSubeAntesDeBajarYReemplazaIdLocalSinDuplicar() = runTest {
@@ -63,7 +63,7 @@ class ProductoRepositorioOfflineTest {
    json("""{"message":"sin permiso"}""",HttpStatusCode.Forbidden)
   })),MutableStateFlow(sesion),d)
   val fallo=assertFailsWith<ErrorApiException> { repo.sincronizar() }
-  assertEquals(ErrorApi.SinPermiso,fallo.error);assertEquals(0,gets);assertEquals(2,local.pendientes("admin").size)
+  assertEquals(ErrorApi.SinPermiso,fallo.error);assertEquals(0,gets);assertEquals(2,local.pendientes("admin").size);assertEquals(2,repo.observarFallidas().first());assertEquals(0,repo.observarPendientes().first())
  }
  @Test fun bajarLaListaNoBorraUnaFilaPendiente() = runTest {
   val local=ProductoLocal(base(),UnconfinedTestDispatcher(testScheduler))
@@ -122,13 +122,17 @@ class ProductoRepositorioOfflineTest {
   assertFailsWith<ErrorApiException> { repo.sincronizar() }
   assertEquals(1000L,repo.ultimaSincronizacion().first())
  }
- @Test fun migracionDeVersionUnoADosConservaProductos() = runTest {
+ @Test fun migracionDeVersionUnoATresConservaProductos() = runTest {
   val driver=driverEnMemoria().also(drivers::add);val base=PharmaDb(driver)
   val local=ProductoLocal(base,UnconfinedTestDispatcher(testScheduler))
   local.reemplazarSincronizados("admin",listOf(Producto(12,"Conservado",2.0,10)))
   driver.execute(null,"DROP TABLE sincronizacion",0)
-  assertEquals(2L,PharmaDb.Schema.version)
-  PharmaDb.Schema.migrate(driver,1,2)
+  driver.execute(null,"ALTER TABLE producto DROP COLUMN intentos",0)
+  driver.execute(null,"ALTER TABLE producto DROP COLUMN ultimoError",0)
+  assertEquals(3L,PharmaDb.Schema.version)
+  PharmaDb.Schema.migrate(driver,1,3)
+  assertEquals(0L,local.intentos("admin",12))
+  assertNull(base.productoQueries.obtener("admin",12).executeAsOne().ultimoError)
   base.sincronizacionQueries.guardar("admin",1000)
   assertEquals("Conservado",local.listar("admin").single().nombre)
   assertEquals(1000L,local.ultimaSincronizacion("admin").first())
