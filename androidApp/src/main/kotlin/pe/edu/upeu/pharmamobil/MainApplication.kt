@@ -17,6 +17,11 @@ class MainApplication : Application() {
         initKoin {
             androidLogger()
             androidContext(this@MainApplication)
+            modules(org.koin.dsl.module {
+                single<pe.edu.upeu.pharmamobil.domain.port.Telemetria> {
+                    pe.edu.upeu.pharmamobil.data.firebase.crearTelemetria()
+                }
+            })
         }
     }
 }

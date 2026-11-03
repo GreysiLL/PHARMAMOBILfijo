@@ -36,7 +36,7 @@ val dataModule = module {
     single<pe.edu.upeu.pharmamobil.domain.repository.PruebasErrores> { pe.edu.upeu.pharmamobil.data.remote.PruebasErroresRest(get(), get(named("urlBase"))) }
     single<pe.edu.upeu.pharmamobil.domain.repository.DiagnosticoConexion> { pe.edu.upeu.pharmamobil.data.remote.DiagnosticoConexionRest(get(), get(named("urlBase"))) }
     single { ProductoRepositorioEnMemoria() }
-    single<ProductoRepository> { pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioOffline(get(), get(), get<pe.edu.upeu.pharmamobil.data.repository.EstadoSesion>().sesion) }
+    single<ProductoRepository> { pe.edu.upeu.pharmamobil.data.repository.ProductoRepositorioOffline(get(), get(), get<pe.edu.upeu.pharmamobil.data.repository.EstadoSesion>().sesion).also { repo -> getOrNull<pe.edu.upeu.pharmamobil.domain.port.Telemetria>()?.let { repo.telemetria = it } } }
     single<ClienteRepository> { pe.edu.upeu.pharmamobil.data.repository.ClienteRepositorioRest(get()) }
 }
 

@@ -1,8 +1,24 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
+buildscript {
+    if (project.file("google-services.json").isFile) {
+        repositories { google(); mavenCentral() }
+        dependencies {
+            classpath("com.google.gms:google-services:4.5.0")
+            classpath("com.google.firebase:firebase-crashlytics-gradle:3.0.8")
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
+}
+
+val firebaseConfigurado = file("google-services.json").isFile
+if (firebaseConfigurado) {
+    pluginManager.apply("com.google.gms.google-services")
+    pluginManager.apply("com.google.firebase.crashlytics")
 }
 
 kotlin {
@@ -11,6 +27,11 @@ kotlin {
     }
 }
 dependencies {
+    if (firebaseConfigurado) {
+        implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+        implementation("dev.gitlive:firebase-crashlytics:2.7.0")
+        implementation("dev.gitlive:firebase-messaging:2.7.0")
+    }
     debugImplementation(libs.sqldelight.runtime)
     debugImplementation(libs.compose.foundation)
     debugImplementation(libs.compose.material3)
@@ -25,6 +46,7 @@ dependencies {
 }
 
 android {
+    sourceSets.getByName("main").kotlin.srcDir(if (firebaseConfigurado) "src/conFirebase/kotlin" else "src/sinFirebase/kotlin")
     namespace = "pe.edu.upeu.pharmamobil"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 

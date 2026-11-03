@@ -9,6 +9,7 @@ import pe.edu.upeu.pharmamobil.data.mapper.*
 import pe.edu.upeu.pharmamobil.domain.model.*
 import pe.edu.upeu.pharmamobil.domain.error.*
 import pe.edu.upeu.pharmamobil.domain.repository.ProductoRepository
+import pe.edu.upeu.pharmamobil.domain.port.Telemetria
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProductoRepositorioOffline(
@@ -18,6 +19,7 @@ class ProductoRepositorioOffline(
  private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
  private val ahoraMillis: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() }
 ) : ProductoRepository {
+ var telemetria: Telemetria = Telemetria { }
  private val mutex = Mutex()
  private fun usuario() = sesiones.value?.usuario ?: throw ErrorApiException(ErrorApi.SesionExpirada)
  override fun observar(): Flow<List<Producto>> = sesiones.map { it?.usuario }.distinctUntilChanged().flatMapLatest {
@@ -93,6 +95,7 @@ class ProductoRepositorioOffline(
     local.registrarFallo(usuario, p.id, if(temporal && !postIncierto) intentos + 1L else 5L,
      if(postIncierto) "Comprueba si el producto llegó al servidor antes de volver a crearlo." else mensajeDe(e.error))
     if(p.id == operacionActual && e.error is ErrorApi.Validacion) throw e
+    runCatching { telemetria.registrarFalloDeSincronizacion(e.codigoHttp) }
     if(primerFallo == null) primerFallo = e
    }
   }
