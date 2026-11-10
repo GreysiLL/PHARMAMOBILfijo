@@ -180,3 +180,7 @@ La rama `feature/autonoma11-duran` agrega seis casos de prueba, cinco escenarios
 Ver el [informe sin referencias y las evidencias](docs/AA11/README.md). Resultado verificado: 102 pruebas aprobadas, incluidas las seis de la suite autónoma. Ejecutar `verificar-autonoma11.ps1`; agregar `-SoloSuite` para ejecutar únicamente esos seis casos.
 
 Las pruebas destructivas y las fixtures se ejecutaron en una instalación debug aislada (`-InstalacionAislada`), conservando los datos de la aplicación habitual. La ejecución y captura en iOS quedan pendientes por falta de Mac/Xcode.
+
+## Firma Android — sesión 14
+
+Crea un archivo local keystore.properties en la raíz con storeFile, storePassword, keyAlias y keyPassword. Guarda la clave JKS fuera del repositorio. Git excluye ese archivo y las extensiones JKS y keystore. Para compilar, ejecuta gradlew.bat :androidApp:assembleRelease :androidApp:bundleRelease. La guía de verificación se encuentra en docs/SESION14/PRUEBAS.md.
