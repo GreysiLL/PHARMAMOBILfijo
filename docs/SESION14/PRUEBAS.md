@@ -5,7 +5,7 @@ APK y AAB Android release generados con R8 activo. Primera compilación: cae8834
 | Equipo | Instalación | Recorrido |
 |---|---|---|
 | Pixel 9 emulado, Android 16 | Android rechazó reemplazar debug con release por certificado distinto | No ejecutado; se conservó la app anterior y sus datos |
-| Teléfono físico 1 | No conectado | Pendiente |
+| Samsung Galaxy Z Flip (SM-F731B), Android 17 | APK firmado instalado por USB; arranque correcto | Login correcto, 9 productos sincronizados, detalle con precio y stock |
 | Teléfono físico 2 | No conectado | Pendiente |
 | iOS | No generado | Requiere Mac, Xcode y equipo de firma |
 
@@ -13,4 +13,4 @@ S14-01 (bloquea el recorrido): instalar el APK firmado sobre la instalación deb
 
 S14-02: el release se configuró para PharmaSoft en 10.40.29.75:8080. Desde el PC y el emulador el endpoint respondió HTTP 401 sin credenciales, lo que confirma acceso de red. La conexión desde un teléfono real sigue sin verificarse. Si la IP cambia, actualizar pharmaHost y el dominio de network_security_config.xml del release, y volver a compilar.
 
-R8 completó la compilación con avisos sobre metadatos Kotlin. No se ha comprobado aún el comportamiento en ejecución del release. No se creó la etiqueta final de entrega.
+R8 completó la compilación con avisos sobre metadatos Kotlin. En el Galaxy Z Flip se verificaron el arranque, la autenticación, la descarga del inventario y el detalle con R8 activo. El recorrido completo sigue pendiente. No se creó la etiqueta final de entrega.
