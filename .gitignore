@@ -19,3 +19,7 @@ captures
 node_modules/
 
 /androidApp/google-services.json
+
+/keystore.properties
+*.jks
+*.keystore

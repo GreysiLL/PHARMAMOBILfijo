@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 buildscript {
     if (project.file("google-services.json").isFile) {
@@ -45,7 +46,21 @@ dependencies {
     debugImplementation(libs.compose.uiTooling)
 }
 
+val firma = Properties()
+val archivoFirma = rootProject.file("keystore.properties")
+if (archivoFirma.isFile) archivoFirma.inputStream().use { firma.load(it) }
+
 android {
+    signingConfigs {
+        if (archivoFirma.isFile) {
+            create("release") {
+                storeFile = rootProject.file(firma.getProperty("storeFile"))
+                storePassword = firma.getProperty("storePassword")
+                keyAlias = firma.getProperty("keyAlias")
+                keyPassword = firma.getProperty("keyPassword")
+            }
+        }
+    }
     sourceSets.getByName("main").kotlin.srcDir(if (firebaseConfigurado) "src/conFirebase/kotlin" else "src/sinFirebase/kotlin")
     namespace = "pe.edu.upeu.pharmamobil"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -55,7 +70,7 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
     }
     packaging {
         resources {
@@ -67,7 +82,8 @@ android {
             if(providers.gradleProperty("aa11Pruebas").orNull == "true") applicationIdSuffix = ".aa11"
         }
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
