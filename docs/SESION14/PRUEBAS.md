@@ -13,4 +13,17 @@ S14-01 (bloquea el recorrido): instalar el APK firmado sobre la instalación deb
 
 S14-02: el release se configuró para PharmaSoft en 10.40.29.75:8080. Desde el PC y el emulador el endpoint respondió HTTP 401 sin credenciales, lo que confirma acceso de red. La conexión desde un teléfono real sigue sin verificarse. Si la IP cambia, actualizar pharmaHost y el dominio de network_security_config.xml del release, y volver a compilar.
 
-R8 completó la compilación con avisos sobre metadatos Kotlin. En el Galaxy Z Flip se verificaron el arranque, la autenticación, la descarga del inventario y el detalle con R8 activo. El recorrido completo sigue pendiente. No se creó la etiqueta final de entrega.
+R8 completó la compilación con avisos sobre metadatos Kotlin. En el Galaxy Z Flip se verificaron el arranque, la autenticación, la descarga del inventario y el detalle con R8 activo. El recorrido observado se detalla abajo. La instalación autónoma sin USB no se verificó. No se creó la etiqueta final de entrega.
+
+## Recorrido del Galaxy Z Flip — Android 17
+
+| Paso | Resultado observado | Evidencia |
+|---|---|---|
+| Instalación y arranque | APK firmado instalado por ADB desde el archivo; abrió PharmaMobil. | [Captura](capturas/s14-flip-instalacion.png) |
+| Inicio de sesión | Cuenta de prueba: 9 productos al entrar. Contraseña incorrecta: la app mostró el mensaje correspondiente. | [Inventario](capturas/s14-flip-inventario.png), [rechazo](capturas/s14-flip-login-invalido.png) |
+| CRUD y validación | Alta de S14-Flip-Prueba, lectura, edición del ID 122 y eliminación del registro de prueba. Precio 0.001 rechazado con mensaje bajo Precio. | [Detalle](capturas/s14-flip-detalle.png), [edición](capturas/s14-flip-edicion.png), [eliminación](capturas/s14-flip-eliminacion.png), [validación](capturas/s14-flip-validacion.png) |
+| Privilegios | VENDEDOR consultó el catálogo sin controles de creación, edición o eliminación. | [Captura](capturas/s14-flip-vendedor.png) |
+| Sin red | Se creó un producto en modo avión con Wi-Fi apagada; la cola mostró 1 pendiente. | [Captura](capturas/s14-flip-offline.png) |
+| Reconexión | Se restauró la conexión y se sincronizó: 0 pendientes, 10 productos y el registro recibió ID 122. | [Captura](capturas/s14-flip-reconexion.png) |
+| Notificaciones | Concesión en el diálogo real. Denegado y bloqueado preparados por ADB; la app ofreció volver a solicitar o abrir Ajustes, respectivamente. Se restauró la concesión. | [Concedido](capturas/s14-flip-permiso.png), [denegado](capturas/s14-flip-denegado.png), [bloqueado](capturas/s14-flip-bloqueado.png) |
+| Cierre y reapertura | Tras cerrar sesión y reiniciar el proceso, volvió al formulario de acceso. | [Captura](capturas/s14-flip-cierre.png) |
