@@ -12,6 +12,14 @@ actual val platformModule: Module = module {
     single<pe.edu.upeu.pharmamobil.data.local.AlmacenSeguro> { pe.edu.upeu.pharmamobil.data.local.AlmacenSeguroAndroid(androidContext()) }
     single(named("depuracion")) { (androidContext().applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 }
     single<HttpClientEngine> { OkHttp.create() }
-    single(named("urlBase")) { "http://10.0.2.2:8080/api/v1/" }
+    single(named("urlBase")) {
+        val context = androidContext()
+        @Suppress("DEPRECATION")
+        val metadata = context.packageManager.getApplicationInfo(
+            context.packageName, android.content.pm.PackageManager.GET_META_DATA
+        ).metaData
+        val host = metadata?.getString("pe.edu.upeu.pharmamobil.PHARMA_HOST") ?: "10.0.2.2"
+        "http://$host:8080/api/v1/"
+    }
     single<Compartidor> { CompartidorAndroid(androidContext()) }
 }

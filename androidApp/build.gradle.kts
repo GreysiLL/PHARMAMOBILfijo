@@ -83,6 +83,7 @@ android {
         }
         release {
             signingConfig = signingConfigs.findByName("release")
+            manifestPlaceholders["pharmaHost"] = "10.40.29.75"
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

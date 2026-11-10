@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <meta-data android:name="pe.edu.upeu.pharmamobil.PHARMA_HOST" android:value="${pharmaHost}" />
+    </application>
+</manifest>
